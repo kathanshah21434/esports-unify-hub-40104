@@ -334,9 +334,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     try {
       await tournamentService.update(id, tournament);
       // Real-time subscription will handle the state update
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to update tournament:', error);
-      set({ error: 'Failed to update tournament' });
+      const errorMessage = error?.message || 'Failed to update tournament';
+      set({ error: errorMessage });
+      throw error; // Re-throw to allow the calling component to handle it
     }
   },
   

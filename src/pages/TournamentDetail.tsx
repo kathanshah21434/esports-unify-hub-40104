@@ -12,6 +12,7 @@ import PrizeDistribution from '@/components/tournament/PrizeDistribution';
 import SponsorsSection from '@/components/tournament/SponsorsSection';
 import PointsTable from '@/components/tournament/PointsTable';
 import RegisteredTeams from '@/components/tournament/RegisteredTeams';
+import TournamentWinners from '@/components/tournament/TournamentWinners';
 import { useGameStore } from '@/store/gameStore';
 
 const TournamentDetail = () => {
@@ -85,11 +86,18 @@ const TournamentDetail = () => {
                 <Badge 
                   variant="secondary" 
                   className={`${
-                    tournament.status === 'upcoming' ? 'bg-blue-500 text-white' :
-                    tournament.status === 'ongoing' ? 'bg-green-500 text-white' :
+                    tournament.status === 'upcoming' 
+                      ? 'bg-blue-500 text-white animate-pulse shadow-lg shadow-blue-500/50' :
+                    tournament.status === 'ongoing' 
+                      ? 'bg-green-500 text-white animate-pulse shadow-lg shadow-green-500/50' :
+                    tournament.status === 'completed'
+                      ? 'bg-yellow-500 text-white shadow-lg shadow-yellow-500/50' :
+                    tournament.status === 'full'
+                      ? 'bg-red-500 text-white' :
                     'bg-gray-500 text-white'
                   }`}
                 >
+                  {tournament.status === 'ongoing' && '🔴 '}
                   {tournament.status.toUpperCase()}
                 </Badge>
                 {tournament.entry_fee && (
@@ -149,12 +157,19 @@ const TournamentDetail = () => {
               {/* Tournament Timer */}
               <TournamentTimer tournament={tournament} />
               
-              <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 bg-gray-800 p-1 h-auto">
+              <Tabs defaultValue={tournament.status === 'completed' ? 'winners' : 'overview'} className="w-full">
+                <TabsList className="grid w-full grid-cols-4 sm:grid-cols-8 bg-gray-800 p-1 h-auto">
                   <TabsTrigger value="overview" className="transition-all duration-200 hover:scale-105 text-sm p-3">
                     <span className="hidden sm:inline">Overview</span>
                     <span className="sm:hidden">Info</span>
                   </TabsTrigger>
+                  {tournament.status === 'completed' && (
+                    <TabsTrigger value="winners" className="transition-all duration-200 hover:scale-105 text-sm p-3 bg-yellow-500/20">
+                      <Trophy className="w-4 h-4 mr-1 inline" />
+                      <span className="hidden sm:inline">Winners</span>
+                      <span className="sm:hidden">🏆</span>
+                    </TabsTrigger>
+                  )}
                   <TabsTrigger value="register" className="transition-all duration-200 hover:scale-105 text-sm p-3">
                     <span className="hidden sm:inline">Register</span>
                     <span className="sm:hidden">Join</span>
@@ -175,6 +190,12 @@ const TournamentDetail = () => {
                   <TabsTrigger value="schedule" className="transition-all duration-200 hover:scale-105 text-sm p-3 hidden sm:block">Schedule</TabsTrigger>
                   <TabsTrigger value="prizes" className="transition-all duration-200 hover:scale-105 text-sm p-3 hidden sm:block">Prizes</TabsTrigger>
                 </TabsList>
+                
+                {tournament.status === 'completed' && (
+                  <TabsContent value="winners" className="mt-6">
+                    <TournamentWinners tournamentId={tournament.id} />
+                  </TabsContent>
+                )}
                 
                 <TabsContent value="register" className="mt-6">
                   <TournamentRegistrationComponent tournament={tournament} />

@@ -163,50 +163,53 @@ export const tournamentService = {
   },
 
   async update(id: string, tournament: Partial<Tournament>): Promise<Tournament> {
-    // Clean up the tournament data - remove empty strings and undefined values
-    let updateData = { ...tournament };
-    
-    // Remove empty string values to prevent database errors
-    Object.keys(updateData).forEach(key => {
-      if (updateData[key] === '' || updateData[key] === undefined || updateData[key] === null) {
-        delete updateData[key];
+    try {
+      // Clean up the tournament data - remove empty strings and undefined values
+      let updateData = { ...tournament };
+      
+      // Remove empty string values to prevent database errors
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] === '' || updateData[key] === undefined || updateData[key] === null) {
+          delete updateData[key];
+        }
+      });
+
+      // Format date fields if they exist
+      if (updateData.start_date) {
+        updateData.start_date = new Date(updateData.start_date).toISOString();
       }
-    });
+      if (updateData.end_date) {
+        updateData.end_date = new Date(updateData.end_date).toISOString();
+      }
+      if (updateData.registration_opens) {
+        updateData.registration_opens = new Date(updateData.registration_opens).toISOString();
+      }
+      if (updateData.registration_closes) {
+        updateData.registration_closes = new Date(updateData.registration_closes).toISOString();
+      }
 
-    // Format date fields if they exist
-    if (updateData.start_date) {
-      updateData.start_date = new Date(updateData.start_date).toISOString();
-    }
-    if (updateData.end_date) {
-      updateData.end_date = new Date(updateData.end_date).toISOString();
-    }
-    if (updateData.registration_opens) {
-      updateData.registration_opens = new Date(updateData.registration_opens).toISOString();
-    }
-    if (updateData.registration_closes) {
-      updateData.registration_closes = new Date(updateData.registration_closes).toISOString();
-    }
+      // Convert to database format
+      const dbData = convertToDbFormat(updateData);
 
-    // Add updated timestamp
-    updateData.updated_at = new Date().toISOString();
-
-    // Convert to database format
-    const dbData = convertToDbFormat(updateData);
-
-    console.log('Updating tournament with cleaned data:', dbData);
-    
-    const { data, error } = await supabase
-      .from('tournaments')
-      .update(dbData)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error updating tournament:', error);
-      throw error;
+      console.log('Updating tournament with cleaned data:', dbData);
+      
+      const { data, error } = await supabase
+        .from('tournaments')
+        .update(dbData)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error updating tournament:', error);
+        throw new Error(`Database error: ${error.message}`);
+      }
+      
+      return convertToTournament(data);
+    } catch (error: any) {
+      console.error('Tournament update error:', error);
+      throw new Error(error.message || 'Failed to update tournament');
     }
-    return convertToTournament(data);
   },
 
   async delete(id: string): Promise<void> {
