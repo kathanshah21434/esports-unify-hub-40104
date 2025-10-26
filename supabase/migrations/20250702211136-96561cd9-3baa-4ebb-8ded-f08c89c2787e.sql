@@ -1,0 +1,13 @@
+-- Add new columns to tournaments table for enhanced tournament management
+ALTER TABLE public.tournaments 
+ADD COLUMN IF NOT EXISTS entry_fee TEXT,
+ADD COLUMN IF NOT EXISTS region TEXT,
+ADD COLUMN IF NOT EXISTS format TEXT,
+ADD COLUMN IF NOT EXISTS team_size TEXT,
+ADD COLUMN IF NOT EXISTS organizer TEXT,
+ADD COLUMN IF NOT EXISTS rules TEXT,
+ADD COLUMN IF NOT EXISTS schedule TEXT,
+ADD COLUMN IF NOT EXISTS prizes TEXT,
+ADD COLUMN IF NOT EXISTS highlights TEXT[],
+ADD COLUMN IF NOT EXISTS registration_opens TIMESTAMP WITH TIME ZONE,
+ADD COLUMN IF NOT EXISTS registration_closes TIMESTAMP WITH TIME ZONE;
