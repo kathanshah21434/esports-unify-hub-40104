@@ -53,6 +53,11 @@ const convertToDbFormat = (tournament: any) => {
   if (tournament.format !== undefined) db.format = tournament.format;
   if (tournament.organizer !== undefined) db.organizer = tournament.organizer;
 
+  // JSONB content fields - allow empty objects/arrays
+  if (tournament.overview_content !== undefined) db.overview_content = tournament.overview_content;
+  if (tournament.schedule_content !== undefined) db.schedule_content = tournament.schedule_content;
+  if (tournament.prizes_content !== undefined) db.prizes_content = tournament.prizes_content;
+
   // Date/time mappings (ensure ISO strings)
   if (tournament.start_date) db.start_date = new Date(tournament.start_date).toISOString();
   if (tournament.end_date) db.end_date = new Date(tournament.end_date).toISOString();
@@ -190,6 +195,18 @@ export const tournamentService = {
 
       // Convert to database format
       const dbData = convertToDbFormat(updateData);
+
+      // If no fields to update after cleaning, just fetch and return current data
+      if (Object.keys(dbData).length === 0) {
+        const { data, error } = await supabase
+          .from('tournaments')
+          .select()
+          .eq('id', id)
+          .single();
+        
+        if (error) throw new Error(`Database error: ${error.message}`);
+        return convertToTournament(data);
+      }
 
       console.log('Updating tournament with cleaned data:', dbData);
       

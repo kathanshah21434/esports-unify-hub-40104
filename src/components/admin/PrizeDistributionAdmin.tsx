@@ -41,10 +41,12 @@ const PrizeDistributionAdmin = ({ tournamentId }: PrizeDistributionAdminProps) =
   useEffect(() => {
     if (selectedTournament && !selectedTournament.prizes_content) {
       updateTournament(selectedTournamentId, {
-        prizes_content: { positions: [], additional_rewards: [] }
+        prizes_content: { positions: [], additional_rewards: [] } as any
+      }).catch(err => {
+        console.error('Failed to initialize prizes_content:', err);
       });
     }
-  }, [selectedTournament, selectedTournamentId, updateTournament]);
+  }, [selectedTournament?.id]);
 
   const getPositionColor = (position: number) => {
     switch (position) {
