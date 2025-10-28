@@ -22,6 +22,7 @@ import PrizeDistributionAdmin from '@/components/admin/PrizeDistributionAdmin';
 import AnnouncementsTab from '@/components/admin/AnnouncementsTab';
 import { QRCodeTab } from '@/components/admin/QRCodeTab';
 import PointsTableAdmin from '@/components/admin/PointsTableAdmin';
+import WinnersAdmin from '@/components/admin/WinnersAdmin';
 
 const Admin = () => {
   const { toast } = useToast();
@@ -493,6 +494,17 @@ const Admin = () => {
                   <Trophy className="w-4 h-4" />
                   Points Table
                 </button>
+                <button
+                  onClick={() => setActiveTab('winners')}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                    activeTab === 'winners' 
+                      ? 'bg-purple-600 text-white' 
+                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  <Award className="w-4 h-4" />
+                  Winners
+                </button>
               </div>
             </div>
 
@@ -623,8 +635,10 @@ const Admin = () => {
                 {activeTab === 'wallet' && <Wallet className="w-6 h-6 text-purple-400" />}
                 {activeTab === 'announcements' && <Megaphone className="w-6 h-6 text-purple-400" />}
                 {activeTab === 'qrcodes' && <QrCode className="w-6 h-6 text-purple-400" />}
+                {activeTab === 'points-table' && <Trophy className="w-6 h-6 text-purple-400" />}
+                {activeTab === 'winners' && <Award className="w-6 h-6 text-purple-400" />}
                 <h2 className="text-2xl font-bold text-white capitalize">
-                  {activeTab === 'live-youtube' ? 'Live Streams' : activeTab === 'prizes' ? 'Prize Distribution' : activeTab}
+                  {activeTab === 'live-youtube' ? 'Live Streams' : activeTab === 'prizes' ? 'Prize Distribution' : activeTab === 'points-table' ? 'Points Table' : activeTab}
                 </h2>
               </div>
               <p className="text-gray-400">
@@ -638,6 +652,8 @@ const Admin = () => {
                 {activeTab === 'wallet' && 'Manage user wallets and transactions.'}
                 {activeTab === 'announcements' && 'Create and manage platform announcements.'}
                 {activeTab === 'qrcodes' && 'Manage payment QR codes displayed on the website.'}
+                {activeTab === 'points-table' && 'Manage tournament points and leaderboard standings.'}
+                {activeTab === 'winners' && 'Announce winners for completed tournaments.'}
               </p>
             </div>
 
@@ -653,6 +669,8 @@ const Admin = () => {
             <TabsTrigger value="wallet" />
             <TabsTrigger value="announcements" />
             <TabsTrigger value="qrcodes" />
+            <TabsTrigger value="points-table" />
+            <TabsTrigger value="winners" />
           </TabsList>
 
           {/* Tournaments Tab */}
@@ -1466,6 +1484,11 @@ const Admin = () => {
           {/* Points Table Tab */}
           <TabsContent value="points-table">
             <PointsTableAdmin tournaments={tournaments} />
+          </TabsContent>
+
+          {/* Winners Tab */}
+          <TabsContent value="winners">
+            <WinnersAdmin tournaments={tournaments} />
           </TabsContent>
         </Tabs>
           </div>
