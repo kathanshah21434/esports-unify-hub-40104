@@ -733,6 +733,7 @@ export type Database = {
           name: string
           organizer: string | null
           overview_content: Json | null
+          points_display_mode: string | null
           prize_pool: string | null
           prizes_content: Json | null
           region: string | null
@@ -766,6 +767,7 @@ export type Database = {
           name: string
           organizer?: string | null
           overview_content?: Json | null
+          points_display_mode?: string | null
           prize_pool?: string | null
           prizes_content?: Json | null
           region?: string | null
@@ -799,6 +801,7 @@ export type Database = {
           name?: string
           organizer?: string | null
           overview_content?: Json | null
+          points_display_mode?: string | null
           prize_pool?: string | null
           prizes_content?: Json | null
           region?: string | null

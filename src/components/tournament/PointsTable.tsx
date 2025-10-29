@@ -25,6 +25,7 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
   const [pointsEntries, setPointsEntries] = useState<PointsEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [displayMode, setDisplayMode] = useState<'grouped' | 'ungrouped'>('grouped');
 
   // Parse team size to determine if this is a team tournament
   const parseTeamSize = (size: any): number => {
@@ -47,6 +48,7 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
   useEffect(() => {
     if (isTeamTournament && tournamentId) {
       loadPointsTable();
+      loadDisplayMode();
 
       // Subscribe to real-time updates
       const channel = supabase
@@ -72,6 +74,21 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
       };
     }
   }, [tournamentId, isTeamTournament]);
+
+  const loadDisplayMode = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tournaments')
+        .select('points_display_mode')
+        .eq('id', tournamentId)
+        .single();
+
+      if (error) throw error;
+      setDisplayMode((data?.points_display_mode as 'grouped' | 'ungrouped') || 'grouped');
+    } catch (error) {
+      console.error('Error loading display mode:', error);
+    }
+  };
 
   const loadPointsTable = async () => {
     try {
@@ -214,8 +231,8 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
   const hasGroups = is5ManTournament && Object.keys(groupedEntries).length > 0 && 
                     pointsEntries.some(entry => entry.group_name);
 
-  // Render grouped display for 5-Man tournaments with groups
-  if (hasGroups) {
+  // Render grouped display for 5-Man tournaments with groups and grouped display mode
+  if (hasGroups && displayMode === 'grouped') {
     return (
       <div className="space-y-6">
         {Object.entries(groupedEntries).sort(([a], [b]) => a.localeCompare(b)).map(([groupName, entries]) => (

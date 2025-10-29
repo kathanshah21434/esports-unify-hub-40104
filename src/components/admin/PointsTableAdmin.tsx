@@ -36,11 +36,13 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
     points: '',
     kills: '',
     wins: '',
+    position: '',
     group_name: ''
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [numberOfGroups, setNumberOfGroups] = useState<number>(4);
+  const [displayMode, setDisplayMode] = useState<'grouped' | 'ungrouped'>('grouped');
 
   // Helper function to detect 5-Man Team tournament
   const is5ManTeamTournament = (tournament: any): boolean => {
@@ -63,8 +65,52 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
   useEffect(() => {
     if (selectedTournament) {
       loadPointsTable();
+      loadDisplayMode();
     }
   }, [selectedTournament]);
+
+  const loadDisplayMode = async () => {
+    if (!selectedTournament) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('tournaments')
+        .select('points_display_mode')
+        .eq('id', selectedTournament)
+        .single();
+
+      if (error) throw error;
+      setDisplayMode((data?.points_display_mode as 'grouped' | 'ungrouped') || 'grouped');
+    } catch (error) {
+      console.error('Error loading display mode:', error);
+    }
+  };
+
+  const updateDisplayMode = async (mode: 'grouped' | 'ungrouped') => {
+    if (!selectedTournament) return;
+    
+    try {
+      const { error } = await supabase
+        .from('tournaments')
+        .update({ points_display_mode: mode })
+        .eq('id', selectedTournament);
+
+      if (error) throw error;
+
+      setDisplayMode(mode);
+      toast({
+        title: "Success",
+        description: `Display mode changed to ${mode}`
+      });
+    } catch (error) {
+      console.error('Error updating display mode:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update display mode",
+        variant: "destructive"
+      });
+    }
+  };
 
   const loadPointsTable = async () => {
     if (!selectedTournament) return;
@@ -150,13 +196,14 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
       points: entry.points.toString(),
       kills: entry.kills.toString(),
       wins: entry.wins.toString(),
+      position: entry.position.toString(),
       group_name: entry.group_name || ''
     });
   };
 
   const cancelEdit = () => {
     setEditingEntry(null);
-    setEditForm({ points: '', kills: '', wins: '', group_name: '' });
+    setEditForm({ points: '', kills: '', wins: '', position: '', group_name: '' });
   };
 
   const saveEdit = async (entryId: string) => {
@@ -166,6 +213,7 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
         points: parseInt(editForm.points) || 0,
         kills: parseInt(editForm.kills) || 0,
         wins: parseInt(editForm.wins) || 0,
+        position: parseInt(editForm.position) || 1,
       };
 
       // Only add group_name for 5-Man tournaments
@@ -188,6 +236,7 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
               points: parseInt(editForm.points) || 0,
               kills: parseInt(editForm.kills) || 0,
               wins: parseInt(editForm.wins) || 0,
+              position: parseInt(editForm.position) || 1,
               group_name: is5ManTournament ? (editForm.group_name || null) : entry.group_name,
               updated_at: new Date().toISOString()
             }
@@ -384,33 +433,61 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
             </div>
 
             {is5ManTournament && selectedTournament && (
-              <div className="flex gap-4 items-end p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-blue-300 mb-2">
-                    5-Man Team Group Management
-                  </label>
-                  <p className="text-xs text-blue-200 mb-2">Assign teams to groups (Group A, B, C, etc.)</p>
+              <div className="space-y-4">
+                <div className="flex gap-4 items-center p-4 bg-indigo-900/20 border border-indigo-700/30 rounded-lg">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-indigo-300 mb-1">
+                      Display Mode
+                    </label>
+                    <p className="text-xs text-indigo-200">Choose how points table is displayed to participants</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => updateDisplayMode('grouped')}
+                      disabled={loading || saving}
+                      variant={displayMode === 'grouped' ? 'default' : 'outline'}
+                      className={displayMode === 'grouped' ? 'bg-indigo-600 hover:bg-indigo-700' : 'border-gray-600 text-gray-300 hover:bg-gray-700'}
+                    >
+                      Grouped
+                    </Button>
+                    <Button
+                      onClick={() => updateDisplayMode('ungrouped')}
+                      disabled={loading || saving}
+                      variant={displayMode === 'ungrouped' ? 'default' : 'outline'}
+                      className={displayMode === 'ungrouped' ? 'bg-indigo-600 hover:bg-indigo-700' : 'border-gray-600 text-gray-300 hover:bg-gray-700'}
+                    >
+                      Single Table
+                    </Button>
+                  </div>
                 </div>
-                <div className="w-32">
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    # of Groups
-                  </label>
-                  <Input
-                    type="number"
-                    min="2"
-                    max="8"
-                    value={numberOfGroups}
-                    onChange={(e) => setNumberOfGroups(parseInt(e.target.value) || 4)}
-                    className="bg-gray-700 border-gray-600 text-white"
-                  />
+                <div className="flex gap-4 items-end p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-blue-300 mb-2">
+                      Group Management
+                    </label>
+                    <p className="text-xs text-blue-200 mb-2">Assign teams to groups (Group A, B, C, etc.)</p>
+                  </div>
+                  <div className="w-32">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      # of Groups
+                    </label>
+                    <Input
+                      type="number"
+                      min="2"
+                      max="8"
+                      value={numberOfGroups}
+                      onChange={(e) => setNumberOfGroups(parseInt(e.target.value) || 4)}
+                      className="bg-gray-700 border-gray-600 text-white"
+                    />
+                  </div>
+                  <Button
+                    onClick={autoAssignGroups}
+                    disabled={loading || saving || pointsEntries.length === 0}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Auto-assign Groups
+                  </Button>
                 </div>
-                <Button
-                  onClick={autoAssignGroups}
-                  disabled={loading || saving || pointsEntries.length === 0}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  Auto-assign Groups
-                </Button>
               </div>
             )}
           </div>
@@ -447,12 +524,22 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
                       pointsEntries.map((entry) => (
                         <TableRow key={entry.id} className="border-gray-600">
                           <TableCell className="text-white font-bold">
-                            <div className="flex items-center gap-2">
-                              {entry.position === 1 && <Trophy className="w-4 h-4 text-yellow-500" />}
-                              {entry.position === 2 && <Trophy className="w-4 h-4 text-gray-400" />}
-                              {entry.position === 3 && <Trophy className="w-4 h-4 text-amber-600" />}
-                              #{entry.position}
-                            </div>
+                            {editingEntry === entry.id ? (
+                              <Input
+                                type="number"
+                                min="1"
+                                value={editForm.position}
+                                onChange={(e) => setEditForm({...editForm, position: e.target.value})}
+                                className="w-20 bg-gray-700 border-gray-600 text-white"
+                              />
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                {entry.position === 1 && <Trophy className="w-4 h-4 text-yellow-500" />}
+                                {entry.position === 2 && <Trophy className="w-4 h-4 text-gray-400" />}
+                                {entry.position === 3 && <Trophy className="w-4 h-4 text-amber-600" />}
+                                #{entry.position}
+                              </div>
+                            )}
                           </TableCell>
                           <TableCell className="text-white font-medium">
                             {entry.team_name}
