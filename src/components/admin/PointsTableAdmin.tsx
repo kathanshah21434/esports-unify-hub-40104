@@ -51,8 +51,17 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
     return sizeStr.includes('5') || sizeStr.includes('five') || sizeStr.includes('5-man');
   };
 
+  // Helper function to detect Squad tournament
+  const isSquadTournament = (tournament: any): boolean => {
+    if (!tournament?.team_size) return false;
+    const sizeStr = String(tournament.team_size).toLowerCase().trim();
+    return sizeStr.includes('squad') || sizeStr === '4';
+  };
+
   const selectedTournamentData = tournaments.find(t => t.id === selectedTournament);
   const is5ManTournament = selectedTournamentData ? is5ManTeamTournament(selectedTournamentData) : false;
+  const isSquad = selectedTournamentData ? isSquadTournament(selectedTournamentData) : false;
+  const supportsGrouping = is5ManTournament || isSquad;
 
   // Filter tournaments to only show team tournaments
   const teamTournaments = tournaments.filter(t => 
@@ -216,8 +225,8 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
         position: parseInt(editForm.position) || 1,
       };
 
-      // Only add group_name for 5-Man tournaments
-      if (is5ManTournament) {
+      // Only add group_name for tournaments that support grouping
+      if (supportsGrouping) {
         updateData.group_name = editForm.group_name || null;
       }
 
@@ -237,7 +246,7 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
               kills: parseInt(editForm.kills) || 0,
               wins: parseInt(editForm.wins) || 0,
               position: parseInt(editForm.position) || 1,
-              group_name: is5ManTournament ? (editForm.group_name || null) : entry.group_name,
+              group_name: supportsGrouping ? (editForm.group_name || null) : entry.group_name,
               updated_at: new Date().toISOString()
             }
           : entry
@@ -268,8 +277,8 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
     try {
       let updates: any[] = [];
 
-      if (is5ManTournament) {
-        // For 5-Man tournaments, calculate both overall and in-group positions
+      if (supportsGrouping) {
+        // For tournaments with grouping, calculate both overall and in-group positions
         // First, sort all entries for overall position
         const sortedEntries = [...pointsEntries].sort((a, b) => {
           if (b.points !== a.points) return b.points - a.points;
@@ -303,7 +312,7 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
           });
         });
       } else {
-        // For Squad/Duo tournaments, only calculate overall position
+        // For other tournaments, only calculate overall position
         const sortedEntries = [...pointsEntries].sort((a, b) => {
           if (b.points !== a.points) return b.points - a.points;
           return b.kills - a.kills;
@@ -432,7 +441,7 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
               </Button>
             </div>
 
-            {is5ManTournament && selectedTournament && (
+            {supportsGrouping && selectedTournament && (
               <div className="space-y-4">
                 <div className="flex gap-4 items-center p-4 bg-indigo-900/20 border border-indigo-700/30 rounded-lg">
                   <div className="flex-1">
@@ -500,7 +509,7 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
                     <TableRow className="border-gray-600">
                       <TableHead className="text-gray-300">Position</TableHead>
                       <TableHead className="text-gray-300">Team Name</TableHead>
-                      {is5ManTournament && <TableHead className="text-gray-300">Group</TableHead>}
+                      {supportsGrouping && <TableHead className="text-gray-300">Group</TableHead>}
                       <TableHead className="text-gray-300">Points</TableHead>
                       <TableHead className="text-gray-300">Kills</TableHead>
                       <TableHead className="text-gray-300">Wins</TableHead>
@@ -544,7 +553,7 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
                           <TableCell className="text-white font-medium">
                             {entry.team_name}
                           </TableCell>
-                          {is5ManTournament && (
+                          {supportsGrouping && (
                             <TableCell className="text-white">
                               {editingEntry === entry.id ? (
                                 <Select 

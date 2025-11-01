@@ -44,6 +44,8 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
   const teamSizeNum = parseTeamSize(teamSize);
   const isTeamTournament = teamSizeNum > 1;
   const is5ManTournament = teamSizeNum === 5;
+  const isSquadTournament = teamSizeNum === 4;
+  const supportsGrouping = is5ManTournament || isSquadTournament;
 
   useEffect(() => {
     if (isTeamTournament && tournamentId) {
@@ -103,9 +105,9 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
 
       if (pointsError) throw pointsError;
 
-      // For 5-Man tournaments with groups, sort by group_name then position_in_group
+      // For tournaments with grouping, sort by group_name then position_in_group
       let sortedData = pointsData || [];
-      if (is5ManTournament && sortedData.some(entry => entry.group_name)) {
+      if (supportsGrouping && sortedData.some(entry => entry.group_name)) {
         sortedData = sortedData.sort((a, b) => {
           if (a.group_name !== b.group_name) {
             return (a.group_name || 'Ungrouped').localeCompare(b.group_name || 'Ungrouped');
@@ -218,8 +220,8 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
     );
   }
 
-  // Group entries by group_name for 5-Man tournaments
-  const groupedEntries = is5ManTournament 
+  // Group entries by group_name for tournaments with grouping
+  const groupedEntries = supportsGrouping 
     ? pointsEntries.reduce((acc, entry) => {
         const groupName = entry.group_name || 'Ungrouped';
         if (!acc[groupName]) acc[groupName] = [];
@@ -228,10 +230,10 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
       }, {} as Record<string, PointsEntry[]>)
     : {};
 
-  const hasGroups = is5ManTournament && Object.keys(groupedEntries).length > 0 && 
+  const hasGroups = supportsGrouping && Object.keys(groupedEntries).length > 0 && 
                     pointsEntries.some(entry => entry.group_name);
 
-  // Render grouped display for 5-Man tournaments with groups and grouped display mode
+  // Render grouped display for tournaments with groups and grouped display mode
   if (hasGroups && displayMode === 'grouped') {
     return (
       <div className="space-y-6">
@@ -332,7 +334,7 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
     );
   }
 
-  // Default display for Squad/Duo tournaments or 5-Man without groups
+  // Default display for tournaments without groups or ungrouped mode
   return (
     <Card className="bg-gradient-to-br from-gray-800/50 via-gray-900/30 to-purple-900/20 border-gray-700 backdrop-blur-sm overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-blue-600/5" />
