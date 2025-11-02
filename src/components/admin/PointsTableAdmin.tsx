@@ -43,6 +43,8 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
   const [saving, setSaving] = useState(false);
   const [numberOfGroups, setNumberOfGroups] = useState<number>(4);
   const [displayMode, setDisplayMode] = useState<'grouped' | 'ungrouped'>('grouped');
+  const [selectedTeamForGroup, setSelectedTeamForGroup] = useState<string>('');
+  const [selectedGroupForTeam, setSelectedGroupForTeam] = useState<string>('');
 
   // Helper function to detect 5-Man Team tournament
   const is5ManTeamTournament = (tournament: any): boolean => {
@@ -403,6 +405,55 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
     }
   };
 
+  const manuallyAssignTeamToGroup = async () => {
+    if (!selectedTeamForGroup || !selectedGroupForTeam) {
+      toast({
+        title: "Error",
+        description: "Please select both a team and a group",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const entry = pointsEntries.find(e => e.team_id === selectedTeamForGroup);
+      if (!entry) throw new Error('Team not found');
+
+      const { error } = await supabase
+        .from('tournament_points')
+        .update({ group_name: selectedGroupForTeam })
+        .eq('id', entry.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setPointsEntries(prev => prev.map(e => 
+        e.team_id === selectedTeamForGroup 
+          ? { ...e, group_name: selectedGroupForTeam }
+          : e
+      ));
+
+      toast({
+        title: "Success",
+        description: `Team assigned to ${selectedGroupForTeam}`
+      });
+
+      // Reset selections
+      setSelectedTeamForGroup('');
+      setSelectedGroupForTeam('');
+    } catch (error) {
+      console.error('Error assigning team to group:', error);
+      toast({
+        title: "Error",
+        description: "Failed to assign team to group",
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="bg-gray-800/50 border-gray-700">
@@ -496,6 +547,56 @@ const PointsTableAdmin: React.FC<PointsTableAdminProps> = ({ tournaments }) => {
                   >
                     Auto-assign Groups
                   </Button>
+                </div>
+
+                <div className="p-4 bg-green-900/20 border border-green-700/30 rounded-lg space-y-3">
+                  <label className="block text-sm font-medium text-green-300">
+                    Manual Team Assignment
+                  </label>
+                  <p className="text-xs text-green-200">Assign individual teams to specific groups</p>
+                  <div className="flex gap-4 items-end">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Select Team
+                      </label>
+                      <Select value={selectedTeamForGroup} onValueChange={setSelectedTeamForGroup}>
+                        <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                          <SelectValue placeholder="Choose a team" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-700 border-gray-600">
+                          {pointsEntries.map((entry) => (
+                            <SelectItem key={entry.team_id} value={entry.team_id} className="text-white">
+                              {entry.team_name} {entry.group_name && `(${entry.group_name})`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Assign to Group
+                      </label>
+                      <Select value={selectedGroupForTeam} onValueChange={setSelectedGroupForTeam}>
+                        <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                          <SelectValue placeholder="Choose a group" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-700 border-gray-600">
+                          {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].slice(0, numberOfGroups).map((group) => (
+                            <SelectItem key={group} value={`Group ${group}`} className="text-white">
+                              Group {group}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      onClick={manuallyAssignTeamToGroup}
+                      disabled={!selectedTeamForGroup || !selectedGroupForTeam || saving}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Assign Team
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
