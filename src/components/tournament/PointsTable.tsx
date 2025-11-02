@@ -253,42 +253,41 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
         {Object.entries(groupedEntries).sort(([a], [b]) => a.localeCompare(b)).map(([groupName, entries]) => (
           <Card 
             key={groupName}
-            className={`bg-gradient-to-br ${getGroupColor(groupName)} border ${getGroupBorderColor(groupName)} backdrop-blur-sm overflow-hidden`}
+            className="bg-gray-900/95 border-2 border-gray-700 backdrop-blur-sm overflow-hidden shadow-xl"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-blue-600/5" />
-            <CardHeader className="relative">
+            <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-3 text-white text-2xl">
-                  <div className={`w-10 h-10 bg-gradient-to-br ${getGroupColor(groupName)} rounded-lg flex items-center justify-center border ${getGroupBorderColor(groupName)}`}>
+                <CardTitle className="flex items-center gap-3 text-white text-2xl font-bold">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
                     <Trophy className="w-6 h-6 text-white" />
                   </div>
                   {groupName}
                 </CardTitle>
-                <Badge variant="outline" className="text-sm">
+                <Badge variant="secondary" className="text-sm font-semibold bg-gray-800 text-white border border-gray-600">
                   {entries.length} Teams
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="relative p-0">
+            <CardContent className="p-0 bg-gray-900">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-gray-600 hover:bg-transparent">
-                      <TableHead className="text-gray-300 font-bold">Position</TableHead>
-                      <TableHead className="text-gray-300 font-bold">Team Name</TableHead>
-                      <TableHead className="text-gray-300 font-bold">
+                    <TableRow className="border-b-2 border-gray-700 hover:bg-gray-800/50 bg-gray-800">
+                      <TableHead className="text-gray-100 font-bold text-base">Position</TableHead>
+                      <TableHead className="text-gray-100 font-bold text-base">Team Name</TableHead>
+                      <TableHead className="text-gray-100 font-bold text-base">
                         <div className="flex items-center gap-2">
                           <Target className="w-4 h-4" />
                           Points
                         </div>
                       </TableHead>
-                      <TableHead className="text-gray-300 font-bold">
+                      <TableHead className="text-gray-100 font-bold text-base">
                         <div className="flex items-center gap-2">
                           <Zap className="w-4 h-4" />
                           Kills
                         </div>
                       </TableHead>
-                      <TableHead className="text-gray-300 font-bold">
+                      <TableHead className="text-gray-100 font-bold text-base">
                         <div className="flex items-center gap-2">
                           <Award className="w-4 h-4" />
                           Wins
@@ -302,39 +301,39 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
                       return (
                         <TableRow 
                           key={entry.id} 
-                          className={`border transition-all duration-200 hover:bg-white/5 ${getPositionRowClass(groupPosition)}`}
+                          className="border-b border-gray-800 transition-all duration-200 hover:bg-gray-800/70 bg-gray-900/50"
                         >
                           <TableCell className="font-bold">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 py-2">
                               {getPositionIcon(groupPosition)}
-                              <span className="text-lg text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{groupPosition}</span>
+                              <span className="text-xl text-white font-bold">{groupPosition}</span>
                             </div>
                           </TableCell>
-                          <TableCell className="font-semibold text-lg">
-                            <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{entry.team_name}</span>
+                          <TableCell className="font-semibold text-lg py-3">
+                            <span className="text-white">{entry.team_name}</span>
                           </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                                <Target className="w-4 h-4 text-white" />
+                          <TableCell className="py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                                <Target className="w-5 h-5 text-white" />
                               </div>
-                              <span className="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{entry.points}</span>
+                              <span className="text-2xl font-bold text-white">{entry.points}</span>
                             </div>
                           </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
-                                <Zap className="w-4 h-4 text-white" />
+                          <TableCell className="py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 bg-gradient-to-br from-red-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg">
+                                <Zap className="w-5 h-5 text-white" />
                               </div>
-                              <span className="text-lg font-medium text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{entry.kills}</span>
+                              <span className="text-xl font-semibold text-white">{entry.kills}</span>
                             </div>
                           </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
-                                <Award className="w-4 h-4 text-white" />
+                          <TableCell className="py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg">
+                                <Award className="w-5 h-5 text-white" />
                               </div>
-                              <span className="text-lg font-medium text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{entry.wins}</span>
+                              <span className="text-xl font-semibold text-white">{entry.wins}</span>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -352,47 +351,46 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
 
   // Default display for tournaments without groups or ungrouped mode
   return (
-    <Card className="bg-gradient-to-br from-gray-800/50 via-gray-900/30 to-purple-900/20 border-gray-700 backdrop-blur-sm overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-blue-600/5" />
-      <CardHeader className="relative">
+    <Card className="bg-gray-900/95 border-2 border-gray-700 backdrop-blur-sm overflow-hidden shadow-xl">
+      <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2 text-white text-2xl">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
+            <CardTitle className="flex items-center gap-3 text-white text-2xl font-bold">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
                 <Trophy className="w-6 h-6 text-white" />
               </div>
               Live Points Table
             </CardTitle>
-            <p className="text-gray-300 mt-1">Real-time tournament standings</p>
+            <p className="text-gray-300 mt-1 font-medium">Real-time tournament standings</p>
           </div>
           {lastUpdated && (
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="secondary" className="text-xs bg-gray-800 text-white border border-gray-600">
               <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" />
               Updated {lastUpdated.toLocaleTimeString()}
             </Badge>
           )}
         </div>
       </CardHeader>
-      <CardContent className="relative p-0">
+      <CardContent className="p-0 bg-gray-900">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-gray-600 hover:bg-transparent">
-                <TableHead className="text-gray-300 font-bold">Position</TableHead>
-                <TableHead className="text-gray-300 font-bold">Team Name</TableHead>
-                <TableHead className="text-gray-300 font-bold">
+              <TableRow className="border-b-2 border-gray-700 hover:bg-gray-800/50 bg-gray-800">
+                <TableHead className="text-gray-100 font-bold text-base">Position</TableHead>
+                <TableHead className="text-gray-100 font-bold text-base">Team Name</TableHead>
+                <TableHead className="text-gray-100 font-bold text-base">
                   <div className="flex items-center gap-2">
                     <Target className="w-4 h-4" />
                     Points
                   </div>
                 </TableHead>
-                <TableHead className="text-gray-300 font-bold">
+                <TableHead className="text-gray-100 font-bold text-base">
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4" />
                     Kills
                   </div>
                 </TableHead>
-                <TableHead className="text-gray-300 font-bold">
+                <TableHead className="text-gray-100 font-bold text-base">
                   <div className="flex items-center gap-2">
                     <Award className="w-4 h-4" />
                     Wins
@@ -404,39 +402,39 @@ const PointsTable: React.FC<PointsTableProps> = ({ tournamentId, teamSize }) => 
               {pointsEntries.map((entry) => (
                 <TableRow 
                   key={entry.id} 
-                  className={`border transition-all duration-200 hover:bg-white/5 ${getPositionRowClass(entry.position)}`}
+                  className="border-b border-gray-800 transition-all duration-200 hover:bg-gray-800/70 bg-gray-900/50"
                 >
                   <TableCell className="font-bold">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 py-2">
                       {getPositionIcon(entry.position)}
-                      <span className="text-lg text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{entry.position}</span>
+                      <span className="text-xl text-white font-bold">{entry.position}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="font-semibold text-lg">
-                    <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{entry.team_name}</span>
+                  <TableCell className="font-semibold text-lg py-3">
+                    <span className="text-white">{entry.team_name}</span>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                        <Target className="w-4 h-4 text-white" />
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <Target className="w-5 h-5 text-white" />
                       </div>
-                      <span className="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{entry.points}</span>
+                      <span className="text-2xl font-bold text-white">{entry.points}</span>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg">
-                        <Zap className="w-4 h-4 text-white" />
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-gradient-to-br from-red-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <Zap className="w-5 h-5 text-white" />
                       </div>
-                      <span className="text-lg font-medium text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{entry.kills}</span>
+                      <span className="text-xl font-semibold text-white">{entry.kills}</span>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
-                        <Award className="w-4 h-4 text-white" />
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <Award className="w-5 h-5 text-white" />
                       </div>
-                      <span className="text-lg font-medium text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{entry.wins}</span>
+                      <span className="text-xl font-semibold text-white">{entry.wins}</span>
                     </div>
                   </TableCell>
                 </TableRow>
