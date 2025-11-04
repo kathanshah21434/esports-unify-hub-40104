@@ -5,8 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  signUp: (email: string, password: string, name: string, gameId: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, name: string, gameId: string, phone?: string) => Promise<{ error: any }>;
+  signIn: (emailOrPhone: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   loading: boolean;
 }
@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, name: string, gameId: string) => {
+  const signUp = async (email: string, password: string, name: string, gameId: string, phone?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -64,6 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         data: {
           name: name,
           game_id: gameId,
+          phone: phone,
         }
       }
     });
@@ -71,9 +72,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (emailOrPhone: string, password: string) => {
+    // Check if input is phone number (contains only digits and + or -)
+    const isPhone = /^[\d+\-\s()]+$/.test(emailOrPhone.trim());
+    
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      ...(isPhone ? { phone: emailOrPhone } : { email: emailOrPhone }),
       password,
     });
     return { error };

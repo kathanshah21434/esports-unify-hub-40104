@@ -7,12 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Gamepad2, Mail, Lock, User } from 'lucide-react';
+import { Gamepad2, Mail, Lock, User, Phone } from 'lucide-react';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [signupData, setSignupData] = useState({ email: '', password: '', name: '', gameUserId: '' });
+  const [loginData, setLoginData] = useState({ emailOrPhone: '', password: '' });
+  const [signupData, setSignupData] = useState({ email: '', password: '', name: '', gameUserId: '', phone: '' });
   
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
@@ -29,7 +29,7 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await signIn(loginData.email, loginData.password);
+      const { error } = await signIn(loginData.emailOrPhone, loginData.password);
       
       if (error) {
         toast({
@@ -60,7 +60,7 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await signUp(signupData.email, signupData.password, signupData.name, signupData.gameUserId);
+      const { error } = await signUp(signupData.email, signupData.password, signupData.name, signupData.gameUserId, signupData.phone);
       
       if (error) {
         toast({
@@ -112,16 +112,16 @@ const Auth = () => {
               <TabsContent value="login">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email" className="text-white">Email</Label>
+                    <Label htmlFor="login-email" className="text-white">Email or Phone Number</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="login-email"
-                        type="email"
-                        placeholder="Enter your email"
+                        type="text"
+                        placeholder="Enter your email or phone number"
                         className="pl-10 bg-gray-700/50 border-gray-600 text-white"
-                        value={loginData.email}
-                        onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                        value={loginData.emailOrPhone}
+                        onChange={(e) => setLoginData({ ...loginData, emailOrPhone: e.target.value })}
                         required
                       />
                     </div>
@@ -183,6 +183,21 @@ const Auth = () => {
                         value={signupData.email}
                         onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
                         required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-phone" className="text-white">Phone Number</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="signup-phone"
+                        type="tel"
+                        placeholder="Enter your phone number"
+                        className="pl-10 bg-gray-700/50 border-gray-600 text-white"
+                        value={signupData.phone}
+                        onChange={(e) => setSignupData({ ...signupData, phone: e.target.value })}
                       />
                     </div>
                   </div>
