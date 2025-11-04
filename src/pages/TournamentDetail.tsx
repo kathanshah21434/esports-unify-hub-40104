@@ -247,7 +247,7 @@ const TournamentDetail = () => {
                             <Trophy className="w-7 h-7 text-white" />
                           </div>
                           <h4 className="text-white font-bold mb-2 text-base uppercase tracking-wide">Entry Fee</h4>
-                          <p className="text-green-400 font-bold text-xl">{tournament.entry_fee || '₹10'}</p>
+                          <p className="text-green-400 font-bold text-xl">{tournament.entry_fee || 'Free'}</p>
                         </CardContent>
                       </Card>
 
